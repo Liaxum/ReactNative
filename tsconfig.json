@@ -1,0 +1,17 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "jsx": "react",
+    "esModuleInterop": true,
+    "strict": true,
+    "paths": {
+      "@/components/*": ["src/components/*"],
+      "@/views/*": ["src/views/*"],
+      "@assets/*": ["assets/*"],
+      "@/types/*": ["src/types/*"],
+      "@/services/*": ["src/services/*"],
+    }
+  },
+  "exclude": ["node_modules", "babel.config.js", "metro.config.js", "jest.config.js"]
+}
