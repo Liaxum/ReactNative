@@ -26,7 +26,6 @@ export default function App({ navigate }: any) {
             component={Tabs}
             options={{ headerShown: false }}
           />
-          <Stack.Screen name="Details" component={Details} />
         </Stack.Navigator>
       ) : (
         <Stack.Navigator>
@@ -40,6 +39,7 @@ export default function App({ navigate }: any) {
             component={Tabs}
             options={{ headerShown: false }}
           />
+          <Stack.Screen name="Details" component={Details} />
         </Stack.Navigator>
       )}
     </NavigationContainer>

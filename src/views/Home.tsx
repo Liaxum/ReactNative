@@ -29,7 +29,7 @@ export default function Home({ navigation }: any) {
 
   const fetchOccasions = async () => {
     await instance.fetch({ search, date });
-    setOccasions(instance.occasions);
+    setOccasions([...instance.occasions]);
   };
 
   const fetchOccasionsPageChange = async () => {
@@ -43,8 +43,14 @@ export default function Home({ navigation }: any) {
   };
 
   React.useEffect(() => {
+    setDate(undefined);
     fetchOccasions();
-  }, [search, date]);
+  }, [search]);
+
+  React.useEffect(() => {
+    setSearch(undefined);
+    fetchOccasions();
+  }, [date]);
 
   React.useEffect(() => {
     fetchOccasionsPageChange();
@@ -76,6 +82,7 @@ export default function Home({ navigation }: any) {
         <TextInput
           onChange={({ nativeEvent: { text } }) => setSearch(text)}
           style={styles.search}
+          value={search}
           placeholder="Search, (Event title, Keywords)"
         />
         <Pressable onPress={() => setDatePickerVisibility(true)}>
@@ -97,8 +104,9 @@ export default function Home({ navigation }: any) {
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="date"
-        onConfirm={() => {
-          setDate(date);
+        onConfirm={(selectedDate) => {
+          setDate(selectedDate);
+          setDatePickerVisibility(false);
         }}
         onCancel={() => setDatePickerVisibility(false)}
       />

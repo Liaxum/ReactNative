@@ -29,16 +29,19 @@ class Occasions {
 
 
   public async fetch({ page, search, date }: any): Promise<void> {
-
+    let dateFormated;
     const url: URL = new URL(this._baseURL.toString());
-    url.searchParams.append('select', 'uid, title_fr as title, description_fr as shortDesc, longdescription_fr as longDesc, keywords_fr as keywords, timings, image, updatedat as updatedAt, location_name as addressName, location_address as address, registration, location_coordinates as location');
-    url.searchParams.append('where', `location_city='Grenoble' ${search ? `AND suggest(title, keywords, '${search}')` : ''}`);
+    url.searchParams.append('select', 'uid, title_fr as title, description_fr as shortDesc, longdescription_fr as longDesc, keywords_fr as keywords, timings, image, updatedat as updatedAt, location_name as addressName, location_address as address, registration, location_coordinates as location, date_format(firstdate_begin, "YYYY-MM-dd") as firstdate_begin');
+    if (date) {
+      dateFormated= new Date(date).toISOString().split('T')[0];
+    }
+    url.searchParams.append('where', `location_city='Grenoble' ${search ? `AND suggest(title, keywords, '${search}')` : ''} ${dateFormated ? `AND firstdate_begin = '${dateFormated}'` : ''}`);
     url.searchParams.append('order_by', 'firstdate_begin DESC');
     url.searchParams.append("limit", this._limit.toString());
     if (page > 1) {
       url.searchParams.append("offset", this.calculateOffset(page).toString());
     }
-
+    
     const response = await (await fetch(url)).json();
 
     this._occasions = response.results.map(
