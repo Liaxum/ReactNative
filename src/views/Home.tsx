@@ -1,10 +1,21 @@
 import React from "react";
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Pressable,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { TextInput } from "react-native-gesture-handler";
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 import Occasion from "@/services/Occasion";
 import Occasions from "@/services/Occasions";
-import { TextInput } from "react-native-gesture-handler";
+import supabase from "src/supabase";
+import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 
 type ItemProps = { occasion: Occasion };
 
@@ -22,8 +33,27 @@ export default function Home({ navigation }: any) {
 
   const fetchOccasionsPageChange = async () => {
     await instance.fetch({ page });
-    occasions.push(...instance.occasions);
-    setOccasions(occasions);
+    setOccasions([...occasions, ...instance.occasions]);
+  };
+
+  const logout = async () => {
+    await supabase.auth.signOut();
+    navigation.navigate("Login");
+  }
+  
+  const onChange = (event: any, selectedDate: any) => {
+    setDate(selectedDate);
+    console.log(date);
+  }
+
+  const showDatePicker = () => {
+    DateTimePickerAndroid.open({
+      value: date || new Date(),
+      onChange,
+
+      mode: 'date',
+      is24Hour: true,
+    });
   };
 
   React.useEffect(() => {
@@ -36,7 +66,10 @@ export default function Home({ navigation }: any) {
 
   const Item = ({ occasion }: ItemProps) => {
     return (
-      <TouchableOpacity onPress={() => navigation.navigate("Details")} style={styles.item}>
+      <TouchableOpacity
+        onPress={() => navigation.navigate("Details", { occasion })}
+        style={styles.item}
+      >
         <Image
           style={styles.image}
           source={{
@@ -53,7 +86,19 @@ export default function Home({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.window}>
-      <TextInput onChange={({ nativeEvent: { text } }) => setSearch(text)} style={styles.search} placeholder="Search, (Event title, Keywords)"/>
+      <View style={styles.headerBar}>
+        <TextInput
+          onChange={({ nativeEvent: { text } }) => setSearch(text)}
+          style={styles.search}
+          placeholder="Search, (Event title, Keywords)"
+        />
+        <Pressable onPress={showDatePicker}>
+          <Icon name="calendar" size={30} style={styles.logoutIcon}/>
+        </Pressable>
+        <Pressable onPress={logout}>
+          <Icon name="sign-out" size={30} style={styles.logoutIcon}/>
+        </Pressable>
+      </View>
       <FlatList
         data={occasions}
         renderItem={({ item }: any) => <Item occasion={item} />}
@@ -76,7 +121,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  headerBar: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   search: {
+    flex: 1,
     padding: 10,
     backgroundColor: "white",
     marginVertical: 8,
@@ -102,6 +152,9 @@ const styles = StyleSheet.create({
   },
   subTitle: {
     flexShrink: 1,
+  },
+  logoutIcon: {
+    marginLeft: 10,
   },
   image: {
     width: 100,
