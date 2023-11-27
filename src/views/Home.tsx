@@ -10,12 +10,12 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { TextInput } from "react-native-gesture-handler";
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from "react-native-vector-icons/FontAwesome";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 import Occasion from "@/services/Occasion";
 import Occasions from "@/services/Occasions";
 import supabase from "src/supabase";
-import { DateTimePickerAndroid } from "@react-native-community/datetimepicker";
 
 type ItemProps = { occasion: Occasion };
 
@@ -24,6 +24,7 @@ export default function Home({ navigation }: any) {
   const [occasions, setOccasions] = React.useState<Occasion[]>([]);
   const [search, setSearch] = React.useState<string>();
   const [date, setDate] = React.useState<Date>();
+  const [isDatePickerVisible, setDatePickerVisibility] = React.useState(false);
   const [page, setPage] = React.useState<number>(1);
 
   const fetchOccasions = async () => {
@@ -39,21 +40,6 @@ export default function Home({ navigation }: any) {
   const logout = async () => {
     await supabase.auth.signOut();
     navigation.navigate("Login");
-  }
-  
-  const onChange = (event: any, selectedDate: any) => {
-    setDate(selectedDate);
-    console.log(date);
-  }
-
-  const showDatePicker = () => {
-    DateTimePickerAndroid.open({
-      value: date || new Date(),
-      onChange,
-
-      mode: 'date',
-      is24Hour: true,
-    });
   };
 
   React.useEffect(() => {
@@ -92,11 +78,11 @@ export default function Home({ navigation }: any) {
           style={styles.search}
           placeholder="Search, (Event title, Keywords)"
         />
-        <Pressable onPress={showDatePicker}>
-          <Icon name="calendar" size={30} style={styles.logoutIcon}/>
+        <Pressable onPress={() => setDatePickerVisibility(true)}>
+          <Icon name="calendar" size={30} style={styles.logoutIcon} />
         </Pressable>
         <Pressable onPress={logout}>
-          <Icon name="sign-out" size={30} style={styles.logoutIcon}/>
+          <Icon name="sign-out" size={30} style={styles.logoutIcon} />
         </Pressable>
       </View>
       <FlatList
@@ -107,6 +93,14 @@ export default function Home({ navigation }: any) {
         onEndReached={() => {
           if (page < instance.pages) setPage(page + 1);
         }}
+      />
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="date"
+        onConfirm={() => {
+          setDate(date);
+        }}
+        onCancel={() => setDatePickerVisibility(false)}
       />
     </SafeAreaView>
   );
